@@ -58,10 +58,6 @@ const resolvers = {
 
           indexes = _.uniq(indexes);
 
-          indexes = indexes.map(i => ({
-            name: i,
-          }));
-
           console.log('***allKGs - indexes', indexes);
           return indexes;
         })
@@ -132,7 +128,62 @@ const resolvers = {
           return [];
         });
     },
+
+    // kg(name: String!): KnowledgeGraph
+    kg: (parent, { name }, { es }, info) => {
+      console.log('***kg called - ', name);
+      return {
+        name,
+      }
+    },
+
   },
+
+  KnowledgeGraph: {
+    // comms(filter: Filter): [Comm]
+    comms: ({ name: kg }, { id, filter }, { es }, info) => {
+      console.log('***KnowledgeGraph comms called - ', kg, id, filter);
+
+      let body;
+      if (id) {
+        body = {
+          query: {
+            match: {
+               _id: id
+             }
+          }
+        }
+      } else if (filter) {
+        body = {
+          'query': {
+            'nested': {
+              'path': 'participants',
+              'query': {
+                'match': {
+                  'participants.email': filter.email
+                }
+              }
+            }
+          }
+        }
+      }
+
+      const commType = '__comms';
+      return es.search({
+          index: `${kg}${commType}`,
+          body
+        })
+        .then(resp => {
+          console.log('***KnowledgeGraph comms response - ', resp.body.hits.total.value);
+          return buildComms(resp.body.hits.hits || []);
+        })
+        .catch(err => {
+          console.log(err);
+          return [];
+        });
+    }
+
+  }
 };
 
 export default resolvers;

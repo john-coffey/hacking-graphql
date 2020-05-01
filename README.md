@@ -12,9 +12,23 @@ in the middle and see the result on the right.  A good query to start with is
 
 ```
 query getAllKGS {
-    allKGs {
+    allKGs
+}
+```
+
+This will get you list of KGs in the system.  Then run this -
+
+```
+query getCommsFromKg {
+  kg(name: "---a kg from the above list goes here---") {
     name
+    comms {
+      id
+      message
+    }
   }
 }
 ```
- 
+
+Obviously replacing `---a kg from the above list goes here---` with a value
+from the `getAllKGS` query.

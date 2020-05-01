@@ -7,6 +7,7 @@ const typeDefs = gql`
 
   type KnowledgeGraph {
     name: String
+    comms(id: String, filter: Filter): [Comm]
   }
 
   type Attachment {
@@ -40,7 +41,7 @@ const typeDefs = gql`
     """
     Returns a list of KGs in the system
     """
-    allKGs: [KnowledgeGraph]
+    allKGs: [String]
 
     """
     Returns a list of Comm objects for the specified KG
@@ -52,6 +53,12 @@ const typeDefs = gql`
     """
     comm(kg: String!, id: String!): Comm
 
+    """
+    This is an alternative way to model things.  This toplevel query
+    will select the KG and all other things will be relative to that.
+    The KnowledgeGraph type provides ways to get to the Comms etc.
+    """
+    kg(name: String!): KnowledgeGraph
   }
 `;
 
